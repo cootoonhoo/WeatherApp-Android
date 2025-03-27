@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    kotlin("plugin.serialization") version "1.9.0"
 }
 
 android {
@@ -22,8 +23,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         val properties = Properties()
         properties.load(project.rootProject.file("local.properties").inputStream())
-        buildConfigField("String", "OPEN_WEATHER_API_KEY", properties.getProperty("OPEN_WEATHER_API_KEY"))
-
+        buildConfigField("String", "TOMORROW_API_KEY", properties.getProperty("TOMORROW_API_KEY"))
+        buildConfigField("String", "TOMORROW_REALTIME_API_URL", properties.getProperty("TOMORROW_REALTIME_API_URL"))
+        buildConfigField("String", "TOMORROW_FORECAST_API_URL", properties.getProperty("TOMORROW_FORECAST_API_URL"))
     }
 
     buildTypes {
@@ -67,4 +69,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 }
