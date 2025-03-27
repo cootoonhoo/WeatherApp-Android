@@ -1,8 +1,9 @@
 package br.com.wheatherApp.data.model
+
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CurrentWeatherResponse(
-    val data: CurrentWeatherData,
+class ForecastWeatherResponse (
+    val timelinesData: TimelinesData,
     val location: LocationData
 )
