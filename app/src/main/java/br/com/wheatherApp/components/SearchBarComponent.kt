@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -25,6 +26,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -51,12 +54,19 @@ fun SearchBarComponent(
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Buscar cidade",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(24.dp)
                 )
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 0.dp)
+                .clip(
+                    RoundedCornerShape(
+                        topStart =  8.dp,
+                        topEnd = 8.dp
+                    )
+                )
+                .padding(top = 12.dp)
                 .focusRequester(focusRequester)
                 .onFocusChanged {
                     isFocused = it.isFocused
@@ -73,7 +83,12 @@ fun SearchBarComponent(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(TextFieldDefaults.shape)
+                    .clip(
+                        RoundedCornerShape(
+                            bottomStart = 8.dp,
+                            bottomEnd = 8.dp
+                        )
+                    )
                     .background(Color.White.copy(alpha = 0.2f))
             ) {
                 items(cities) { city ->
@@ -86,7 +101,7 @@ fun SearchBarComponent(
                                 viewModel.onCitySelected(city)
                                 focusRequester.freeFocus()
                             }
-                            .padding(vertical = 12.dp, horizontal = 24.dp),
+                            .padding(vertical = 16.dp, horizontal = 20.dp),
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 }
