@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun SearchBarComponent(viewModel: MainViewModel = viewModel()) {
+fun SearchBarComponent(viewModel: MainViewModel = viewModel(), modifier: Modifier = Modifier) {
     val searchText by viewModel.searchText.collectAsState()
     val cities by viewModel.listOfCities.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
@@ -39,18 +39,18 @@ fun SearchBarComponent(viewModel: MainViewModel = viewModel()) {
             onValueChange = viewModel::onSearchTextChange,
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 8.dp)
                 .focusRequester(focusRequester)
                 .onFocusChanged {
-                    // Update focus state
                     isFocused = it.isFocused
                 },
             placeholder = { Text("Buscar cidade") }
         )
 
-        if (isFocused || searchText.isNotBlank()) {
-            Spacer(modifier = Modifier.height(16.dp))
+        if (isFocused) {
             LazyColumn(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
                 items(cities) { city ->
                     Text(
@@ -62,7 +62,7 @@ fun SearchBarComponent(viewModel: MainViewModel = viewModel()) {
                                 viewModel.onCitySelected(city)
                                 focusRequester.freeFocus()
                             }
-                            .padding(vertical = 16.dp)
+                            .padding(vertical = 8.dp, horizontal = 24.dp)
                     )
                 }
             }
