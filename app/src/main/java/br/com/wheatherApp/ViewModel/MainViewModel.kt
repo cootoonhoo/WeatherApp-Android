@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-
+import android.util.Log
 
 val MOCK_ListOfCities = listOf(
     City("São Paulo"),
@@ -29,25 +29,30 @@ class MainViewModel: ViewModel()
     private val _listOfCities = MutableStateFlow(MOCK_ListOfCities) // Futuramente vai ser SavedCities
     @OptIn(FlowPreview::class)
     val listOfCities = searchText
-        .debounce(  700L)
+        .debounce(700L)
         .onEach { _isSearching.update { true } }
         .combine(_listOfCities){ text, city ->
-        if(text.isBlank())
-        {
-            city
-        } else {
-            city.filter {
-                it.doesMatchSearchQuery(text)
+            if(text.isBlank())
+            {
+                city
+            } else {
+                city.filter {
+                    it.doesMatchSearchQuery(text)
+                }
             }
-        }
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        _listOfCities.value
-    )
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            _listOfCities.value
+        )
 
     fun onSearchTextChange(text : String)
     {
         _searchText.value = text
+    }
+
+    fun onCitySelected(city: City) {
+        // Futuramente, você pode adicionar outras ações aqui, como buscar dados meteorológicos
+        Log.d("CitySelection", "Cidade selecionada: ${city.cityName}")
     }
 }
