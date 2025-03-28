@@ -8,12 +8,19 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Color(0xFF5D9CEC),      // Azul claro para elementos principais
+    secondary = Color(0xFF4A89DC),    // Azul um pouco mais escuro
+    tertiary = Color(0xFF3BAFBF),     // Tons de azul-verde para contraste
+    background = Color(0xFF121212),   // Fundo muito escuro, quase preto
+    surface = Color(0xFF1E1E1E),      // Superfícies em tom de cinza escuro
+    onPrimary = Color.White,          // Texto sobre elementos primários
+    onSecondary = Color.White,        // Texto sobre elementos secundários
+    onBackground = Color(0xFFE0E0E0), // Texto de fundo
+    onSurface = Color.White           // Texto em superfícies
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -33,10 +40,9 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun WeatherAppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+fun WheaterAppTheme(
+    darkTheme: Boolean = true,  // Definindo como padrão o Dark Theme
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
