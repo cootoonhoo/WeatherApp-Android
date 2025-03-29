@@ -1,8 +1,6 @@
 package br.com.wheatherApp.components
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,7 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -26,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.wheatherApp.data.model.WeatherData
@@ -48,94 +45,115 @@ fun WeatherCardComponent(
             containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = weatherData.cityName,
-                color = Color(0xFF5D9CEC),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "${weatherData.currentTemp}°C",
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+        /** Claude 3.7 Sonnet - Início
+         * Faça que quando esteja chovendo, o WeaherCardComponent tenha um efeito de chuva
+         */
+        Box(modifier = Modifier.fillMaxWidth()) {
 
-                Column(
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Text(
-                        text = "Max: ${weatherData.maxTemp}°C",
-                        color = Color(0xFFE57373),
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp
-                    )
+            // Adicionando o efeito de chuva se aplicável
+            val isRaining = weatherData.status.contains("Rain", ignoreCase = true) ||
+                    weatherData.ranningChance > 0.5
 
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "Min: ${weatherData.minTemp}°C",
-                        color = Color(0xFF5D9CEC),
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (weatherData.ranningChance > 0.3) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = "Chance de chuva",
-                        tint = Color(0xFF5D9CEC),
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                }
-
-                Text(
-                    text = if (weatherData.ranningChance > 0.3) {
-                        "${(weatherData.ranningChance * 100).toInt()}% chance de chuva"
-                    } else {
-                        weatherData.status
-                    },
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 16.sp
+            if (isRaining) {
+                RainEffect(
+                    modifier = Modifier.matchParentSize(),
+                    density = if (weatherData.ranningChance > 0.8) 0.8f else 0.5f,
+                    speed = 1.8f,
+                    color = Color(0x366DA8F1)
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Box(
+            /** Claude 3.7 Sonnet - Fim */
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(6.dp)
-                    .clip(RoundedCornerShape(3.dp))
-                    .background(
-                        when {
-                            weatherData.status.contains("Rain", ignoreCase = true) ||
-                                    weatherData.ranningChance > 0.5 -> Color(0xFF5D9CEC)
-                            weatherData.currentTemp > 30 -> Color(0xFFFF7043)
-                            weatherData.currentTemp < 15 -> Color(0xFF90CAF9)
-                            else -> Color(0xFF81C784)
-                        }
+                    .padding(16.dp)
+            ) {
+                // Cidade + chances de chuva
+                Row (verticalAlignment = Alignment.CenterVertically) {
+                    val rainningChanceColor =  Color(0x65FFFFFF)
+                    Text(
+                        text = weatherData.cityName,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
-            )
+
+                    if(!isRaining)
+                    {
+                        Spacer(modifier = Modifier.width(6.dp))
+
+                        Icon(
+                            imageVector = Icons.Filled.WaterDrop,
+                            contentDescription = "Chance de chuva",
+                            tint = rainningChanceColor,
+                            modifier = Modifier.size(14.dp)
+                        )
+
+                        Spacer(modifier = Modifier.width(2.dp))
+
+                        Text(
+                            text = "${(weatherData.ranningChance * 100).toInt()}%",
+                            color = rainningChanceColor,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Temperatura máxima e mínima
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${weatherData.currentTemp}°C",
+                        fontSize = 36.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column {
+                        Row {
+                            Text(
+                                text = "${weatherData.maxTemp}°C",
+                                fontSize = 14.sp,
+                                color = Color(0xFFE57373),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        Row {
+                            Text(
+                                text = "${weatherData.minTemp}°C",
+                                fontSize = 14.sp,
+                                color = Color(0xFF5D9CEC),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Barrinha indicando o clima
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(
+                            when {
+                                weatherData.status.contains("Rain", ignoreCase = true) ||
+                                        weatherData.ranningChance > 0.5 -> Color(0xFF6DA8F1)
+                                weatherData.currentTemp > 30 -> Color(0xFFFF9C7D)
+                                weatherData.currentTemp < 15 -> Color(0xFF636EAD)
+                                else -> Color(0xFF81C784)
+                            }
+                        )
+                )
+            }
         }
     }
 }
+
