@@ -49,8 +49,6 @@ fun WeatherCardComponent(
          * Faça que quando esteja chovendo, o WeaherCardComponent tenha um efeito de chuva
          */
         Box(modifier = Modifier.fillMaxWidth()) {
-
-            // Adicionando o efeito de chuva se aplicável
             val isRaining = weatherData.status.contains("Rain", ignoreCase = true) ||
                     weatherData.ranningChance > 0.5
 
