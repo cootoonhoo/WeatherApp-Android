@@ -1,5 +1,6 @@
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -9,6 +10,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -41,11 +44,13 @@ fun SearchBarComponent(
     val isSearching by viewModel.isSearching.collectAsState()
     val focusRequester = remember { FocusRequester() }
     var isFocused by remember { mutableStateOf(false) }
+    var isDropdownExpanded by remember { mutableStateOf(false) }
+    val searchBarShape = RoundedCornerShape(12.dp)
 
-    Column(
-        modifier = Modifier
+    Box(
+        modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
     ) {
         TextField(
             value = searchText,
@@ -54,57 +59,59 @@ fun SearchBarComponent(
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Buscar cidade",
-                    modifier = Modifier
-                        .size(24.dp)
+                    modifier = Modifier.size(24.dp),
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(
-                    RoundedCornerShape(
-                        topStart =  8.dp,
-                        topEnd = 8.dp
-                    )
+                .clip(searchBarShape)
+                .background(
+                    color = if (isFocused) {
+                        Color.White.copy(alpha = 0.2f)
+                    } else {
+                        Color.White.copy(alpha = 0.1f)
+                    }
                 )
-                .padding(top = 12.dp)
                 .focusRequester(focusRequester)
                 .onFocusChanged {
-                    isFocused = it.isFocused
+                    isFocused =  it.isFocused
+                    isDropdownExpanded = it.isFocused && cities.isNotEmpty()
                 },
             placeholder = { Text("Buscar cidade") },
-            shape = TextFieldDefaults.shape,
             colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.White.copy(alpha = 0.1f),
-                focusedContainerColor = Color.White.copy(alpha = 0.2f)
-            )
+                unfocusedContainerColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            singleLine = true
         )
-
-        if (isFocused) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(
-                        RoundedCornerShape(
-                            bottomStart = 8.dp,
-                            bottomEnd = 8.dp
+        DropdownMenu(
+            expanded = isDropdownExpanded && cities.isNotEmpty(),
+            onDismissRequest = {
+                isDropdownExpanded = false
+            },
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+        ) {
+            cities.forEach { city ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = city.cityName,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-                    )
-                    .background(Color.White.copy(alpha = 0.2f))
-            ) {
-                items(cities) { city ->
-                    Text(
-                        text = city.cityName,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                viewModel.onSearchTextChange(city.cityName)
-                                viewModel.onCitySelected(city)
-                                focusRequester.freeFocus()
-                            }
-                            .padding(vertical = 16.dp, horizontal = 20.dp),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
+                    },
+                    onClick = {
+                        viewModel.onSearchTextChange(city.cityName)
+                        viewModel.onCitySelected(city)
+                        isDropdownExpanded = false
+                        isFocused = false
+                        focusRequester.freeFocus()
+                    }
+                )
             }
         }
     }
