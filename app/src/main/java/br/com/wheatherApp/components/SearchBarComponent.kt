@@ -1,8 +1,14 @@
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,8 +16,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,8 +35,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -44,17 +48,20 @@ fun SearchBarComponent(
     val isSearching by viewModel.isSearching.collectAsState()
     val focusRequester = remember { FocusRequester() }
     var isFocused by remember { mutableStateOf(false) }
-    var isDropdownExpanded by remember { mutableStateOf(false) }
+    var showSuggestions by remember { mutableStateOf(false) }
     val searchBarShape = RoundedCornerShape(12.dp)
 
-    Box(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
     ) {
         TextField(
             value = searchText,
-            onValueChange = viewModel::onSearchTextChange,
+            onValueChange = {
+                viewModel.onSearchTextChange(it)
+                showSuggestions = true
+            },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
@@ -75,8 +82,8 @@ fun SearchBarComponent(
                 )
                 .focusRequester(focusRequester)
                 .onFocusChanged {
-                    isFocused =  it.isFocused
-                    isDropdownExpanded = it.isFocused && cities.isNotEmpty()
+                    isFocused = it.isFocused
+                    showSuggestions = it.isFocused && cities.isNotEmpty()
                 },
             placeholder = { Text("Buscar cidade") },
             colors = TextFieldDefaults.colors(
@@ -87,31 +94,41 @@ fun SearchBarComponent(
             ),
             singleLine = true
         )
-        DropdownMenu(
-            expanded = isDropdownExpanded && cities.isNotEmpty(),
-            onDismissRequest = {
-                isDropdownExpanded = false
-            },
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+
+        // Sugestões em um Card com animação gradual
+        AnimatedVisibility(
+            visible = showSuggestions && cities.isNotEmpty(),
+            enter = fadeIn(animationSpec = tween(300)) + expandVertically(animationSpec = tween(350)),
+            exit = fadeOut(animationSpec = tween(300)) + shrinkVertically(animationSpec = tween(350))
         ) {
-            cities.forEach { city ->
-                DropdownMenuItem(
-                    text = {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 200.dp),
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
+                )
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(cities) { city ->
                         Text(
                             text = city.cityName,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    viewModel.onSearchTextChange(city.cityName)
+                                    viewModel.onCitySelected(city)
+                                    showSuggestions = false
+                                }
+                                .padding(16.dp)
                         )
-                    },
-                    onClick = {
-                        viewModel.onSearchTextChange(city.cityName)
-                        viewModel.onCitySelected(city)
-                        isDropdownExpanded = false
-                        isFocused = false
-                        focusRequester.freeFocus()
                     }
-                )
+                }
             }
         }
     }
