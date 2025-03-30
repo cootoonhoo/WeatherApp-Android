@@ -13,7 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import br.com.wheatherApp.components.WeatherCardComponent
-import br.com.wheatherApp.data.model.WeatherData
+import br.com.wheatherApp.data.model.CardWeatherData
 import br.com.wheatherApp.ui.theme.WheaterAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,30 +21,31 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val weatherDataMock1 =  WeatherData(
+
+        val weatherDataMock1 =  CardWeatherData(
                 cityName = "São Paulo",
                 currentTemp = 29,
                 maxTemp = 31,
                 minTemp = 21,
-                ranningChance = 0.79,
+                rainningChance = 0.79,
                 status = "Raining"
             )
 
-        val weatherDataMock2 =  WeatherData(
+        val weatherDataMock2 =  CardWeatherData(
             cityName = "Rio de Janeiro",
             currentTemp = 31,
             maxTemp = 34,
             minTemp = 29,
-            ranningChance = 0.10,
+            rainningChance = 0.10,
             status = "Drizzle"
         )
 
-        val weatherDataMock3 =  WeatherData(
+        val weatherDataMock3 =  CardWeatherData(
             cityName = "Uberlandia",
             currentTemp = 23,
             maxTemp = 29,
             minTemp = 19,
-            ranningChance = 0.40,
+            rainningChance = 0.40,
             status = "Lorem ipsum"
         )
 

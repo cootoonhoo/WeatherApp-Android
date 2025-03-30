@@ -23,9 +23,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         val properties = Properties()
         properties.load(project.rootProject.file("local.properties").inputStream())
-        buildConfigField("String", "TOMORROW_API_KEY", properties.getProperty("TOMORROW_API_KEY"))
-        buildConfigField("String", "TOMORROW_REALTIME_API_URL", properties.getProperty("TOMORROW_REALTIME_API_URL"))
-        buildConfigField("String", "TOMORROW_FORECAST_API_URL", properties.getProperty("TOMORROW_FORECAST_API_URL"))
+        buildConfigField("String", "WHEATER_API_KEY", properties.getProperty("WHEATER_API_KEY"))
+        buildConfigField("String", "WEATHER_API_URL", properties.getProperty("WEATHER_API_URL"))
+        buildConfigField("String", "GEOCODING_API_KEY", properties.getProperty("GEOCODING_API_KEY"))
+        buildConfigField("String", "GEOCODING_API_URL", properties.getProperty("GEOCODING_API_URL"))
     }
 
     buildTypes {

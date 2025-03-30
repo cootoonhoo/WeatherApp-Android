@@ -13,9 +13,9 @@ import kotlinx.coroutines.flow.update
 import android.util.Log
 
 val MOCK_ListOfCities = listOf(
-    City("São Paulo"),
-    City("Rio de Janeiro"),
-    City("Xique Xique")
+    City("São Paulo","BR"),
+    City("Rio de Janeiro","BR"),
+    City("Xique Xique", "BR")
 )
 
 class MainViewModel: ViewModel()

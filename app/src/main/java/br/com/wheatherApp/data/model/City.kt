@@ -1,5 +1,9 @@
+import br.com.wheatherApp.data.model.Location
+
 data class City(
-    val cityName : String
+    val cityName : String,
+    val countryCode : String,
+    val location: Location? = null
 ){
     public fun doesMatchSearchQuery(query : String): Boolean {
         val normalizedQuery = query.trim().lowercase().removeDiacritics()

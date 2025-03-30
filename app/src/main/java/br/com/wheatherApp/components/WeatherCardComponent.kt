@@ -26,13 +26,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import br.com.wheatherApp.data.model.WeatherData
+import br.com.wheatherApp.data.model.CardWeatherData
 
 @Composable
 fun WeatherCardComponent(
-    weatherData: WeatherData,
+    weatherData: CardWeatherData,
     modifier: Modifier = Modifier,
-    onCardClick: (WeatherData) -> Unit = {}
+    onCardClick: (CardWeatherData) -> Unit = {}
 ) {
     Card(
         modifier = modifier
@@ -50,12 +50,12 @@ fun WeatherCardComponent(
          */
         Box(modifier = Modifier.fillMaxWidth()) {
             val isRaining = weatherData.status.contains("Rain", ignoreCase = true) ||
-                    weatherData.ranningChance > 0.5
+                    weatherData.rainningChance > 0.5
 
             if (isRaining) {
                 RainEffect(
                     modifier = Modifier.matchParentSize(),
-                    density = if (weatherData.ranningChance > 0.8) 0.8f else 0.5f,
+                    density = if (weatherData.rainningChance > 0.8) 0.8f else 0.5f,
                     speed = 1.8f,
                     color = Color(0x366DA8F1)
                 )
@@ -90,7 +90,7 @@ fun WeatherCardComponent(
                         Spacer(modifier = Modifier.width(2.dp))
 
                         Text(
-                            text = "${(weatherData.ranningChance * 100).toInt()}%",
+                            text = "${(weatherData.rainningChance * 100).toInt()}%",
                             color = rainningChanceColor,
                             fontSize = 14.sp
                         )
@@ -143,7 +143,7 @@ fun WeatherCardComponent(
                         .background(
                             when {
                                 weatherData.status.contains("Rain", ignoreCase = true) ||
-                                        weatherData.ranningChance > 0.5 -> Color(0xFF6DA8F1)
+                                        weatherData.rainningChance > 0.5 -> Color(0xFF6DA8F1)
                                 weatherData.currentTemp > 30 -> Color(0xFFFF9C7D)
                                 weatherData.currentTemp < 15 -> Color(0xFF636EAD)
                                 else -> Color(0xFF81C784)
