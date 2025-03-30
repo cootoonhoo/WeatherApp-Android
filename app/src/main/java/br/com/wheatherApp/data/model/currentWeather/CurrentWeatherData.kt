@@ -35,7 +35,7 @@ data class CurrentWeatherData(
     val slp: Int? = null,
     val snow: Int? = null,
     @SerialName("solar_rad")
-    val solarRadiation: Int? = null,
+    val solarRadiation: Double? = null,
     val sources: List<String>? = null,
     @SerialName("state_code")
     val stateCode: String? = null,

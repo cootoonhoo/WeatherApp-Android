@@ -6,5 +6,5 @@ data class CardWeatherData(
     val maxTemp: Int,
     val minTemp: Int,
     val rainningChance: Double,
-    val status : String
+    val status: String
 )
