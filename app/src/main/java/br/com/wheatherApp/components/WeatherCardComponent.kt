@@ -32,7 +32,7 @@ import br.com.wheatherApp.data.model.CardWeatherData
 fun WeatherCardComponent(
     weatherData: CardWeatherData,
     modifier: Modifier = Modifier,
-    onCardClick: (CardWeatherData) -> Unit = {}
+    onCardClick: (CardWeatherData) -> Unit
 ) {
     Card(
         modifier = modifier
@@ -70,7 +70,7 @@ fun WeatherCardComponent(
                 Row (verticalAlignment = Alignment.CenterVertically) {
                     val rainningChanceColor =  Color(0x65FFFFFF)
                     Text(
-                        text = weatherData.cityName,
+                        text = "${weatherData.cityName},${weatherData.countryCode}",
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -154,4 +154,3 @@ fun WeatherCardComponent(
         }
     }
 }
-
