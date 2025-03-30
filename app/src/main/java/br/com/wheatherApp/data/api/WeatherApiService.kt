@@ -21,7 +21,9 @@ val json = Json {
 suspend fun main()
 {
     println(getCurrentWeather(City("Uberlandia","br"),null,))
-    println(getForecastWeather(City("Uberlandia","br"),null,))
+    println(getHourlyForecastWeather(City("Uberlandia","br"),null,))
+    println(getDailyForecastWeather(City("Uberlandia","br"),null,))
+
 }
 
 suspend fun getCurrentWeather(city: City?, location : Location?) : CurrentWeatherResponse? {
@@ -47,9 +49,33 @@ suspend fun getCurrentWeather(city: City?, location : Location?) : CurrentWeathe
     return json.decodeFromString<CurrentWeatherResponse>(response.bodyAsText())
 }
 
-suspend fun getForecastWeather(city: City?, location : Location?) : ForecastWeatherResponse? {
+suspend fun getHourlyForecastWeather(city: City?, location : Location?) : ForecastWeatherResponse? {
     val client = HttpClient(CIO)
-    val response: HttpResponse = client.get(Constants.API_FORECAST_URL) {
+    val response: HttpResponse = client.get(Constants.API_HOURLY_FORECAST_URL) {
+        url {
+            parameters.append("key", Constants.WHEATER_API_KEY)
+            parameters.append("hours", "6")
+            if(city != null && city.cityName.isNotEmpty() && city.countryCode.isNotEmpty())
+            {
+                parameters.append("city",city.cityName)
+                parameters.append("country",city.countryCode)
+            }
+            else if(location != null)
+            {
+                parameters.append("lat",location.latitude.toString())
+                parameters.append("lon",location.longitude.toString())
+            }
+        }
+    }
+    if(response.status.value != 200)
+        return  null;
+
+    return json.decodeFromString<ForecastWeatherResponse>(response.bodyAsText())
+}
+
+suspend fun getDailyForecastWeather(city: City?, location : Location?) : ForecastWeatherResponse? {
+    val client = HttpClient(CIO)
+    val response: HttpResponse = client.get(Constants.API_DAILY_FORECAST_URL) {
         url {
             parameters.append("key", Constants.WHEATER_API_KEY)
             parameters.append("days", "7")
