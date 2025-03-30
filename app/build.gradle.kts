@@ -73,4 +73,5 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation("androidx.compose.material:material-icons-extended:1.5.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }
