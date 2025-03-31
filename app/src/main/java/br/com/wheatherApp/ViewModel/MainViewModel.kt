@@ -72,6 +72,16 @@ class MainViewModel(private val application: Application): ViewModel() {
         loadFavoriteCities()
     }
 
+    // Adiciona uma nova cidade à lista de cidades
+    fun addCityToList(city: City) {
+        val currentList = _listOfCities.value.toMutableList()
+        // Verifica se a cidade já existe na lista para evitar duplicatas
+        if (!currentList.any { it.cityName == city.cityName && it.countryCode == city.countryCode }) {
+            currentList.add(city)
+            _listOfCities.value = currentList
+        }
+    }
+
     fun refreshFavoriteCities() {
         loadFavoriteCities()
     }
@@ -131,7 +141,7 @@ class MainViewModel(private val application: Application): ViewModel() {
         }
     }
 
-    private fun createWeatherCardData(
+    fun createWeatherCardData(
         currentData: CurrentWeatherResponse?,
         forecastData: ForecastWeatherResponse?
     ): CardWeatherData? {
@@ -176,7 +186,7 @@ class MainViewModel(private val application: Application): ViewModel() {
             ?: (currentWeatherItem.precip?.toDouble()?.coerceAtMost(100.0)?.div(100) ?: 0.0)
 
         return CardWeatherData(
-            cityName = currentWeatherItem.cityName ?: "Localização atual",
+            cityName = currentWeatherItem.cityName ?: "Localização Atual",
             countryCode = currentWeatherItem.countryCode ?: "",
             currentTemp = currentTemp,
             maxTemp = maxTemp,
@@ -212,4 +222,5 @@ class MainViewModel(private val application: Application): ViewModel() {
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
+
 }
