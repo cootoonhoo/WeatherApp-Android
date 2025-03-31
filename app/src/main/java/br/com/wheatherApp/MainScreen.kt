@@ -10,13 +10,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import br.com.wheatherApp.components.FavoriteCitiesSection
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.wheatherApp.components.WeatherCardComponent
@@ -35,6 +40,10 @@ fun MainScreen(
     error: String? = null,
     onCardClick: (CardWeatherData) -> Unit
 ) {
+    val favoriteWeatherData by viewModel.favoriteWeatherData.collectAsState()
+    val isLoadingFavorites by viewModel.isLoadingFavorites.collectAsState()
+    val loadingError by viewModel.loadingError.collectAsState()
+
     fun createWeatherCardData(
         currentData: CurrentWeatherResponse?,
         forecastData: ForecastWeatherResponse?
@@ -54,6 +63,13 @@ fun MainScreen(
             }
         }
 
+        // Caso não consiga obter máxima e mínima, usa a temperatura atual
+        if (maxTemp == Int.MIN_VALUE) maxTemp = currentTemp
+        if (minTemp == Int.MAX_VALUE) minTemp = currentTemp
+
+        if (maxTemp < currentTemp) maxTemp = currentTemp
+        if (minTemp > currentTemp) minTemp = currentTemp
+
         val rainChance = forecastData?.data?.firstOrNull()?.pop?.toDouble()?.div(100)
             ?: (currentWeatherItem.precip?.toDouble()?.coerceAtMost(100.0)?.div(100) ?: 0.0)
 
@@ -69,91 +85,109 @@ fun MainScreen(
     }
 
     Scaffold { paddingValues ->
-        Box(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                SearchBarComponent(
-                    modifier = Modifier.padding(top = 16.dp),
-                    onDetailButtonClick = { cityName ->
-                        // Esta funcionalidade pode ser implementada posteriormente
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Localização Atual",
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                when {
-                    isLoading -> {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(48.dp),
-                                color = MaterialTheme.colorScheme.primary
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "Carregando dados meteorológicos...",
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                            )
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    SearchBarComponent(
+                        viewModel = viewModel,
+                        modifier = Modifier.padding(vertical = 16.dp),
+                        onDetailButtonClick = { cityName ->
+                            // Esta funcionalidade pode ser implementada posteriormente
                         }
-                    }
-                    error != null -> {
-                        Text(
-                            text = "Erro: $error",
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                    currentWeatherData != null && forecastWeatherData != null -> {
-                        val weatherCardData = createWeatherCardData(currentWeatherData, forecastWeatherData)
-                        if(weatherCardData == null) {
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Localização Atual",
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    when {
+                        isLoading -> {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(48.dp),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                        error != null -> {
                             Text(
-                                text = "Ocorreu um erro ao procurar sua localização",
+                                text = "Erro: $error",
                                 fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                            )
-                        } else {
-                            WeatherCardComponent(
-                                weatherData = weatherCardData,
-                                modifier = Modifier,
-                                onCardClick = onCardClick
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(vertical = 16.dp)
                             )
                         }
-                    }
-                    else -> {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(48.dp),
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Consultando sua localização...",
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                            )
+                        currentWeatherData != null && forecastWeatherData != null -> {
+                            val weatherCardData = createWeatherCardData(currentWeatherData, forecastWeatherData)
+                            if(weatherCardData == null) {
+                                Text(
+                                    text = "Ocorreu um erro ao procurar sua localização",
+                                    fontSize = 16.sp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                    modifier = Modifier.padding(vertical = 16.dp)
+                                )
+                            } else {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                WeatherCardComponent(
+                                    weatherData = weatherCardData,
+                                    modifier = Modifier,
+                                    onCardClick = onCardClick
+                                )
+                            }
+                        }
+                        else -> {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(48.dp),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+
+                                Text(
+                                    text = "Consultando sua localização...",
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                                    modifier = Modifier.padding(top = 64.dp)
+                                )
+                            }
                         }
                     }
                 }
+            }
+
+            // Seção de Cidades Favoritas
+            item {
+                FavoriteCitiesSection(
+                    favoriteWeatherData = favoriteWeatherData,
+                    isLoading = isLoadingFavorites,
+                    error = loadingError,
+                    onCardClick = onCardClick
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }

@@ -2,18 +2,18 @@ package br.com.wheatherApp
 
 import MainViewModel
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import br.com.wheatherApp.data.model.CardWeatherData
-import kotlinx.serialization.decodeFromString
 import br.com.wheatherApp.data.model.currentWeather.CurrentWeatherResponse
 import br.com.wheatherApp.data.model.forecastWeather.ForecastWeatherResponse
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import android.app.Application
+import androidx.compose.ui.platform.LocalContext
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
@@ -38,7 +38,8 @@ fun AppNavigation(
 
     NavHost(navController = navController, startDestination = Screen.Home.route) {
         composable(Screen.Home.route) {
-            val viewModel: MainViewModel = viewModel()
+            val application = LocalContext.current.applicationContext as Application
+            val viewModel: MainViewModel = viewModel(factory = MainViewModel.Factory(application))
 
             MainScreen(
                 viewModel = viewModel,
@@ -61,9 +62,15 @@ fun AppNavigation(
             val decodedJson = java.net.URLDecoder.decode(weatherDataJson, "UTF-8")
             val weatherData = json.decodeFromString<CardWeatherData>(decodedJson)
 
+            val application = LocalContext.current.applicationContext as Application
+            val mainViewModel: MainViewModel = viewModel(factory = MainViewModel.Factory(application))
+
             WeatherDetailScreen(
                 weatherData = weatherData,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = {
+                    mainViewModel.refreshFavoriteCities()
+                    navController.popBackStack()
+                }
             )
         }
     }

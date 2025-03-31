@@ -7,8 +7,8 @@ data class CardWeatherData(
     val cityName: String,
     val countryCode: String,
     val currentTemp: Int,
-    val maxTemp: Int,
-    val minTemp: Int,
+    var maxTemp: Int,
+    var minTemp: Int,
     val rainningChance: Double,
     val status: String
 )
