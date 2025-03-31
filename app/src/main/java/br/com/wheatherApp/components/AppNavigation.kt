@@ -1,6 +1,7 @@
 package br.com.wheatherApp
 
 import City
+import ErrorScreen
 import MainViewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +26,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import android.app.Application
 import androidx.compose.ui.platform.LocalContext
+import br.com.wheatherApp.components.CityWeatherLoader
+import br.com.wheatherApp.data.model.HourlyWeatherData
 import kotlinx.coroutines.launch
 
 sealed class Screen(val route: String) {
@@ -68,7 +71,6 @@ fun AppNavigation(
                     navController.navigate(Screen.WeatherDetail.route.replace("{weatherDataJson}", encodedJson))
                 },
                 onSearchCitySelected = { city ->
-                    // Navega para os detalhes da cidade usando os parâmetros separados
                     navController.navigate("city_weather_detail/${city.cityName}/${city.countryCode}")
                 }
             )
@@ -117,98 +119,3 @@ fun AppNavigation(
     }
 }
 
-/**
- * Componente intermediário que carrega os dados da cidade e depois
- * renderiza o WeatherDetailScreen existente
- */
-@Composable
-fun CityWeatherLoader(
-    cityName: String,
-    countryCode: String,
-    onBackClick: () -> Unit
-) {
-    val coroutineScope = rememberCoroutineScope()
-
-    var isLoading by remember { mutableStateOf(true) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var weatherData by remember { mutableStateOf<CardWeatherData?>(null) }
-
-    // Carrega os dados do clima para a cidade
-    LaunchedEffect(cityName, countryCode) {
-        isLoading = true
-        error = null
-
-        coroutineScope.launch {
-            try {
-                val city = City(cityName, countryCode)
-
-                // Carrega os dados em paralelo
-                val currentResponse = getCurrentWeather(city, null)
-                val forecastResponse = getHourlyForecastWeather(city, null)
-
-                if (currentResponse != null && forecastResponse != null) {
-                    // Converte para CardWeatherData
-                    val currentWeatherItem = currentResponse.data.firstOrNull()
-
-                    if (currentWeatherItem != null) {
-                        val currentTemp = currentWeatherItem.temp?.toInt() ?: 0
-
-                        var maxTemp = Int.MIN_VALUE
-                        var minTemp = Int.MAX_VALUE
-
-                        forecastResponse.data?.forEach { forecast ->
-                            forecast.temp?.let { temp ->
-                                val tempInt = temp.toInt()
-                                if (tempInt > maxTemp) maxTemp = tempInt
-                                if (tempInt < minTemp) minTemp = tempInt
-                            }
-                        }
-
-                        if (maxTemp == Int.MIN_VALUE) maxTemp = currentTemp
-                        if (minTemp == Int.MAX_VALUE) minTemp = currentTemp
-
-                        val rainChance = forecastResponse.data?.firstOrNull()?.pop?.toDouble()?.div(100)
-                            ?: (currentWeatherItem.precip?.toDouble()?.coerceAtMost(100.0)?.div(100) ?: 0.0)
-
-                        weatherData = CardWeatherData(
-                            cityName = currentWeatherItem.cityName ?: cityName,
-                            countryCode = currentWeatherItem.countryCode ?: countryCode,
-                            currentTemp = currentTemp,
-                            maxTemp = maxTemp,
-                            minTemp = minTemp,
-                            rainningChance = rainChance,
-                            status = currentWeatherItem.weather?.description ?: "Céu limpo"
-                        )
-                    }
-                    isLoading = false
-                } else {
-                    error = "Não foi possível carregar os dados do clima para $cityName"
-                    isLoading = false
-                }
-            } catch (e: Exception) {
-                error = "Erro ao carregar dados do clima: ${e.message}"
-                isLoading = false
-            }
-        }
-    }
-
-    // Exibe um indicador de carregamento enquanto os dados são buscados
-    when {
-        isLoading -> {
-            LoadingScreen()
-        }
-        error != null -> {
-            ErrorScreen(message = error ?: "Erro desconhecido", onRetry = {
-                isLoading = true
-                error = null
-            })
-        }
-        weatherData != null -> {
-            // Quando os dados estiverem prontos, use o WeatherDetailScreen existente
-            WeatherDetailScreen(
-                weatherData = weatherData!!,
-                onBackClick = onBackClick
-            )
-        }
-    }
-}

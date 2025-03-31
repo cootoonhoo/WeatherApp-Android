@@ -1,5 +1,6 @@
 package br.com.wheatherApp
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -145,7 +146,6 @@ fun WeatherDetailScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(16.dp)
             ) {
-                // Card principal com detalhes do clima
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -155,7 +155,8 @@ fun WeatherDetailScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(24.dp),
+                            .padding(24.dp)
+                            ,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
@@ -242,7 +243,7 @@ fun WeatherDetailScreen(
                                 .width(140.dp)
                                 .padding(4.dp),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
                             Column(
                                 modifier = Modifier
@@ -250,10 +251,10 @@ fun WeatherDetailScreen(
                                     .padding(8.dp)
                             ) {
                                 Text(
-                                    text = "${hourly.time.split(":")[1]}:00", // Exibe apenas a hora (ex: "15")
+                                    text = "${hourly.time.split(":")[1]}:00",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier.align(Alignment.CenterHorizontally)
                                 )
 
@@ -267,11 +268,11 @@ fun WeatherDetailScreen(
                                         imageVector = Icons.Filled.Thermostat,
                                         contentDescription = "Temperatura",
                                         modifier = Modifier.size(22.dp),
-                                        tint = MaterialTheme.colorScheme.primary
+                                        tint = Color.White
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = "${hourly.temp}°C", // Exibe a temperatura futura
+                                        text = "${hourly.temp}°C",
                                         fontSize = 14.sp,
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                                     )
@@ -324,7 +325,7 @@ fun WeatherDetailScreen(
                                     horizontalArrangement = Arrangement.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Filled.Cloud, // Ícone de nuvem chovendo
+                                        imageVector = Icons.Filled.Cloud,
                                         contentDescription = "Chance de Chuva",
                                         modifier = Modifier.size(22.dp),
                                         tint = MaterialTheme.colorScheme.primary
@@ -344,7 +345,7 @@ fun WeatherDetailScreen(
                                     horizontalArrangement = Arrangement.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Filled.WbSunny, // Cor amarela para o índice UV
+                                        imageVector = Icons.Filled.WbSunny,
                                         contentDescription = "Índice UV",
                                         modifier = Modifier.size(22.dp),
                                         tint = Color.Yellow
@@ -364,7 +365,7 @@ fun WeatherDetailScreen(
                                     horizontalArrangement = Arrangement.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Filled.BubbleChart, // Novo ícone para qualidade do ar
+                                        imageVector = Icons.Filled.BubbleChart,
                                         contentDescription = "Qualidade do Ar",
                                         modifier = Modifier.size(22.dp),
                                         tint = MaterialTheme.colorScheme.primary
@@ -379,38 +380,6 @@ fun WeatherDetailScreen(
                             }
                         }
                     }
-                }
-
-                // Botão para favoritar/desfavoritar
-                Button(
-                    onClick = {
-                        favoriteViewModel.toggleFavorite(weatherData.cityName, weatherData.countryCode)
-
-                        scope.launch {
-                            val message = if (isFavorite) {
-                                "${weatherData.cityName} removida dos favoritos"
-                            } else {
-                                "${weatherData.cityName} adicionada aos favoritos"
-                            }
-                            snackbarHostState.showSnackbar(message)
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        text = if (isFavorite)
-                            "Remover ${weatherData.cityName} dos favoritos"
-                        else
-                            "Adicionar ${weatherData.cityName} aos favoritos"
-                    )
                 }
             }
         }

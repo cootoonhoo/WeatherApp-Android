@@ -40,9 +40,9 @@ data class ForecastData(
     val ozone: Int? = null,
     val pop: Int? = null,
     val precip: Double? = null,
-    val pres: Int? = null,
+    val pres: Double? = null,
     val rh: Int? = null,
-    val slp: Int? = null,
+    val slp: Double? = null,
     val snow: Int? = null,
     @SerialName("snow_depth")
     val snowDepth: Int? = null,
