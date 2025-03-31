@@ -28,7 +28,7 @@ fun WeatherDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "${weatherData.cityName} - ${weatherData.countryCode}") },
+                title = { Text(text = "${weatherData.cityName}, ${weatherData.countryCode}") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -38,7 +38,7 @@ fun WeatherDetailScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
+                    containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = Color.White,
                     navigationIconContentColor = Color.White
                 )
