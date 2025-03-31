@@ -27,6 +27,7 @@ import br.com.wheatherApp.components.CurrentLocationWeatherComponent
 import br.com.wheatherApp.components.FavoriteCitiesSection
 import br.com.wheatherApp.components.WeatherCardComponent
 import br.com.wheatherApp.data.model.CardWeatherData
+import br.com.wheatherApp.data.model.HourlyWeatherData
 import br.com.wheatherApp.data.model.currentWeather.CurrentWeatherResponse
 import br.com.wheatherApp.data.model.forecastWeather.ForecastWeatherResponse
 
@@ -68,17 +69,41 @@ fun MainScreen(
         if (maxTemp < currentTemp) maxTemp = currentTemp
         if (minTemp > currentTemp) minTemp = currentTemp
 
+        val uvIndex = currentWeatherItem.uv
+        val airQuality = currentWeatherItem.aqi
+
+        val hourlyWeatherData = forecastData?.data?.map { forecast ->
+            HourlyWeatherData(
+                temp = forecast.temp,
+                time = forecast.datetime ?: "N/A",
+                humidity = forecast.rh,
+                windSpeed = forecast.windSpeed,
+                rainChance = forecast.pop?.toDouble(),
+                uvIndex = forecast.uv,
+                airQuality = airQuality
+            )
+        } ?: emptyList()
+
         val rainChance = forecastData?.data?.firstOrNull()?.pop?.toDouble()?.div(100)
             ?: (currentWeatherItem.precip?.toDouble()?.coerceAtMost(100.0)?.div(100) ?: 0.0)
 
         return CardWeatherData(
-            cityName = currentWeatherItem.cityName?: "Localização atual",
-            countryCode = currentWeatherItem.countryCode?: "",
+            cityName = currentWeatherItem.cityName ?: "Localização atual",
+            countryCode = currentWeatherItem.countryCode ?: "",
             currentTemp = currentTemp,
             maxTemp = maxTemp,
             minTemp = minTemp,
             rainningChance = rainChance,
-            status = currentWeatherItem.weather?.description ?: "Céu limpo"
+            status = currentWeatherItem.weather?.description ?: "Céu limpo",
+            windSpeed = currentWeatherItem.windSpeed,
+            humidity = currentWeatherItem.rh,
+            pressure = currentWeatherItem.pres,
+            windGustSpeed = currentWeatherItem.gust,
+            solarRadiation = currentWeatherItem.solarRadiation,
+            visibility = currentWeatherItem.vis?.toDouble(),
+            uvIndex = uvIndex,
+            airQuality = airQuality,
+            hourlyWeatherData = hourlyWeatherData
         )
     }
 

@@ -10,5 +10,14 @@ data class CardWeatherData(
     var maxTemp: Int,
     var minTemp: Int,
     val rainningChance: Double,
-    val status: String
+    val status: String,
+    val windSpeed: Double?,
+    val humidity: Int?,
+    val pressure: Double?,
+    val windGustSpeed: Double?,
+    val solarRadiation: Double?,
+    val visibility: Double?,
+    val uvIndex: Int?,
+    val airQuality: Int?,
+    val hourlyWeatherData: List<HourlyWeatherData>?
 )
