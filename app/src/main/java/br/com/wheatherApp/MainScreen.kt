@@ -1,5 +1,6 @@
 package br.com.wheatherApp
 
+import City
 import MainViewModel
 import SearchBarComponent
 import androidx.compose.foundation.layout.Box
@@ -10,20 +11,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import br.com.wheatherApp.components.FavoriteCitiesSection
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.wheatherApp.components.CurrentLocationWeatherComponent
+import br.com.wheatherApp.components.FavoriteCitiesSection
 import br.com.wheatherApp.components.WeatherCardComponent
 import br.com.wheatherApp.data.model.CardWeatherData
 import br.com.wheatherApp.data.model.currentWeather.CurrentWeatherResponse
@@ -38,12 +39,9 @@ fun MainScreen(
     forecastWeatherData: ForecastWeatherResponse? = null,
     isLoading: Boolean = false,
     error: String? = null,
-    onCardClick: (CardWeatherData) -> Unit
+    onCardClick: (CardWeatherData) -> Unit,
+    onSearchCitySelected: (City) -> Unit
 ) {
-    val favoriteWeatherData by viewModel.favoriteWeatherData.collectAsState()
-    val isLoadingFavorites by viewModel.isLoadingFavorites.collectAsState()
-    val loadingError by viewModel.loadingError.collectAsState()
-
     fun createWeatherCardData(
         currentData: CurrentWeatherResponse?,
         forecastData: ForecastWeatherResponse?
@@ -84,111 +82,43 @@ fun MainScreen(
         )
     }
 
+    val favoriteWeatherData by viewModel.favoriteWeatherData.collectAsState()
+    val isLoadingFavorites by viewModel.isLoadingFavorites.collectAsState()
+    val loadingError by viewModel.loadingError.collectAsState()
+
     Scaffold { paddingValues ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    SearchBarComponent(
-                        viewModel = viewModel,
-                        modifier = Modifier.padding(vertical = 16.dp),
-                        onDetailButtonClick = { cityName ->
-                            // Esta funcionalidade pode ser implementada posteriormente
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = "Localização Atual",
-                        fontSize = 18.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    when {
-                        isLoading -> {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(48.dp),
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-                        error != null -> {
-                            Text(
-                                text = "Erro: $error",
-                                fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.padding(vertical = 16.dp)
-                            )
-                        }
-                        currentWeatherData != null && forecastWeatherData != null -> {
-                            val weatherCardData = createWeatherCardData(currentWeatherData, forecastWeatherData)
-                            if(weatherCardData == null) {
-                                Text(
-                                    text = "Ocorreu um erro ao procurar sua localização",
-                                    fontSize = 16.sp,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                    modifier = Modifier.padding(vertical = 16.dp)
-                                )
-                            } else {
-                                Spacer(modifier = Modifier.height(8.dp))
-                                WeatherCardComponent(
-                                    weatherData = weatherCardData,
-                                    modifier = Modifier,
-                                    onCardClick = onCardClick
-                                )
-                            }
-                        }
-                        else -> {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(48.dp),
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-
-                                Text(
-                                    text = "Consultando sua localização...",
-                                    fontSize = 14.sp,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                                    modifier = Modifier.padding(top = 64.dp)
-                                )
-                            }
-                        }
-                    }
+            SearchBarComponent(
+                viewModel = viewModel,
+                onDetailButtonClick = { city ->
+                    onSearchCitySelected(city)
                 }
-            }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Seção de Cidades Favoritas
-            item {
-                FavoriteCitiesSection(
-                    favoriteWeatherData = favoriteWeatherData,
-                    isLoading = isLoadingFavorites,
-                    error = loadingError,
-                    onCardClick = onCardClick
-                )
-            }
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-            }
+            CurrentLocationWeatherComponent(
+                isLoading = isLoading,
+                error = error,
+                currentWeatherData = currentWeatherData,
+                forecastWeatherData = forecastWeatherData,
+                createWeatherCardData = { current, forecast ->
+                    viewModel.createWeatherCardData(current, forecast)
+                },
+                onCardClick = onCardClick
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            FavoriteCitiesSection(
+                favoriteWeatherData = favoriteWeatherData,
+                isLoading = isLoadingFavorites,
+                error = loadingError,
+                onCardClick = onCardClick
+            )
         }
     }
 }
