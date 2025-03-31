@@ -1,6 +1,5 @@
 package br.com.wheatherApp
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,19 +14,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BubbleChart
 import androidx.compose.material.icons.filled.Cloud
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,7 +34,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -50,19 +48,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.wheatherApp.components.DailyForecastSection
 import br.com.wheatherApp.components.RainEffect
 import br.com.wheatherApp.data.model.CardWeatherData
 import br.com.wheatherApp.ui.viewmodels.FavoriteViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.TimeZone
 
@@ -81,6 +76,7 @@ fun WeatherDetailScreen(
     val isFavorite by favoriteViewModel.isCityFavorite.collectAsState()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val scrollState = rememberScrollState()
 
     // Verificar se está chovendo para mostrar o efeito de chuva
     val isRaining = weatherData.status.contains("Rain", ignoreCase = true) ||
@@ -150,7 +146,9 @@ fun WeatherDetailScreen(
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .verticalScroll(scrollState)
             ) {
                 Card(
                     modifier = Modifier
@@ -162,7 +160,7 @@ fun WeatherDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(24.dp)
-                            ,
+                        ,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
@@ -229,7 +227,7 @@ fun WeatherDetailScreen(
                                 Spacer(modifier = Modifier.width(4.dp))
 
                                 Text(
-                                    text = "Chance de chuva: ${(weatherData.rainningChance).toInt()}%",
+                                    text = "Chance de chuva: ${(weatherData.rainningChance * 100).toInt()}%",
                                     fontSize = 16.sp,
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                 )
@@ -237,6 +235,16 @@ fun WeatherDetailScreen(
                         }
                     }
                 }
+
+                Text(
+                    text = "Previsão por hora",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp, horizontal = 8.dp)
+                        .align(Alignment.Start)
+                )
 
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
@@ -400,6 +408,10 @@ fun WeatherDetailScreen(
                         }
                     }
                 }
+                DailyForecastSection(
+                    dailyForecasts = weatherData.dailyWeatherData,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }

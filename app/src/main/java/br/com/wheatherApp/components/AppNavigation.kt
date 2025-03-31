@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import br.com.wheatherApp.data.api.getCurrentWeather
 import br.com.wheatherApp.data.api.getHourlyForecastWeather
+import br.com.wheatherApp.data.api.getDailyForecastWeather
 import br.com.wheatherApp.data.model.CardWeatherData
 import br.com.wheatherApp.data.model.currentWeather.CurrentWeatherResponse
 import br.com.wheatherApp.data.model.forecastWeather.ForecastWeatherResponse
@@ -43,6 +44,7 @@ fun AppNavigation(
     longitude: Double? = null,
     currentWeatherData: CurrentWeatherResponse? = null,
     forecastWeatherData: ForecastWeatherResponse? = null,
+    dailyForecastWeatherData: ForecastWeatherResponse? = null, // Novo parâmetro para previsão diária
     isLoading: Boolean = false,
     error: String? = null
 ) {
@@ -63,6 +65,7 @@ fun AppNavigation(
                 longitude = longitude,
                 currentWeatherData = currentWeatherData,
                 forecastWeatherData = forecastWeatherData,
+                dailyForecastWeatherData = dailyForecastWeatherData,
                 isLoading = isLoading,
                 error = error,
                 onCardClick = { weatherData ->
@@ -106,7 +109,6 @@ fun AppNavigation(
             val application = LocalContext.current.applicationContext as Application
             val mainViewModel: MainViewModel = viewModel(factory = MainViewModel.Factory(application))
 
-            // Componente temporário para carregar os dados e então usar o WeatherDetailScreen
             CityWeatherLoader(
                 cityName = cityName,
                 countryCode = countryCode,
@@ -118,4 +120,3 @@ fun AppNavigation(
         }
     }
 }
-

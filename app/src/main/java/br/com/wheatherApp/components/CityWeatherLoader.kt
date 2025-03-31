@@ -13,7 +13,9 @@ import br.com.wheatherApp.LoadingScreen
 import br.com.wheatherApp.WeatherDetailScreen
 import br.com.wheatherApp.data.api.getCurrentWeather
 import br.com.wheatherApp.data.api.getHourlyForecastWeather
+import br.com.wheatherApp.data.api.getDailyForecastWeather
 import br.com.wheatherApp.data.model.CardWeatherData
+import br.com.wheatherApp.data.model.DailyWeatherData
 import br.com.wheatherApp.data.model.HourlyWeatherData
 import kotlinx.coroutines.launch
 
@@ -41,6 +43,7 @@ fun CityWeatherLoader(
                 val city = City(cityName, countryCode)
                 val currentResponse = getCurrentWeather(city, null)
                 val forecastResponse = getHourlyForecastWeather(city, null)
+                val dailyForecastResponse = getDailyForecastWeather(city, null)
 
                 if (currentResponse != null && forecastResponse != null) {
                     val currentWeatherItem = currentResponse.data.firstOrNull()
@@ -67,7 +70,7 @@ fun CityWeatherLoader(
 
                         val airQuality = currentWeatherItem.aqi
 
-                        val hourlyWeatherData = forecastResponse?.data?.map { forecast ->
+                        val hourlyWeatherData = forecastResponse.data?.map { forecast ->
                             HourlyWeatherData(
                                 temp = forecast.temp,
                                 time = forecast.datetime ?: "N/A",
@@ -76,6 +79,17 @@ fun CityWeatherLoader(
                                 rainChance = forecast.pop?.toDouble(),
                                 uvIndex = forecast.uv,
                                 airQuality = airQuality
+                            )
+                        } ?: emptyList()
+
+                        // Processar a previsão diária
+                        val dailyWeatherData = dailyForecastResponse?.data?.map { dailyForecast ->
+                            DailyWeatherData(
+                                date = dailyForecast.validDate ?: "N/A",
+                                maxTemp = dailyForecast.maxTemp?.toInt() ?: currentTemp,
+                                minTemp = dailyForecast.minTemp?.toInt() ?: currentTemp,
+                                description = dailyForecast.weather?.description,
+                                rainChance = dailyForecast.pop?.toDouble()?.div(100)
                             )
                         } ?: emptyList()
 
@@ -95,7 +109,8 @@ fun CityWeatherLoader(
                             visibility = currentWeatherItem.vis?.toDouble(),
                             uvIndex = currentWeatherItem.uv,
                             airQuality = currentWeatherItem.aqi,
-                            hourlyWeatherData = hourlyWeatherData
+                            hourlyWeatherData = hourlyWeatherData,
+                            dailyWeatherData = dailyWeatherData
                         )
                     }
                     isLoading = false

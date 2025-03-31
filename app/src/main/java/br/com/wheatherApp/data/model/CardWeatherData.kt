@@ -19,5 +19,6 @@ data class CardWeatherData(
     val visibility: Double?,
     val uvIndex: Int?,
     val airQuality: Int?,
-    val hourlyWeatherData: List<HourlyWeatherData>?
+    val hourlyWeatherData: List<HourlyWeatherData>?,
+    val dailyWeatherData: List<DailyWeatherData>? = null
 )

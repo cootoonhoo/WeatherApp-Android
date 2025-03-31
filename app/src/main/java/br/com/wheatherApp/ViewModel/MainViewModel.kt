@@ -4,10 +4,12 @@ import androidx.lifecycle.viewModelScope
 import android.app.Application
 import android.util.Log
 import br.com.wheatherApp.data.api.getCurrentWeather
+import br.com.wheatherApp.data.api.getDailyForecastWeather
 import br.com.wheatherApp.data.api.getHourlyForecastWeather
 import br.com.wheatherApp.data.database.FavoriteCity
 import br.com.wheatherApp.data.database.WeatherDatabase
 import br.com.wheatherApp.data.model.CardWeatherData
+import br.com.wheatherApp.data.model.DailyWeatherData
 import br.com.wheatherApp.data.model.HourlyWeatherData
 import br.com.wheatherApp.data.model.currentWeather.CurrentWeatherResponse
 import br.com.wheatherApp.data.model.forecastWeather.ForecastWeatherResponse
@@ -141,9 +143,10 @@ class MainViewModel(private val application: Application): ViewModel() {
                         val cityObj = City(city.cityName, city.countryCode)
                         val currentResponse = getCurrentWeather(cityObj, null)
                         val forecastResponse = getHourlyForecastWeather(cityObj, null)
+                        val dailyForecastResponse = getDailyForecastWeather(cityObj, null)
 
                         if (currentResponse != null && forecastResponse != null) {
-                            val weatherData = createWeatherCardData(currentResponse, forecastResponse)
+                            val weatherData = createWeatherCardData(currentResponse, forecastResponse, dailyForecastResponse)
                             weatherData?.let { weatherDataList.add(it) }
                         }
                     } catch (e: Exception) {
@@ -161,9 +164,11 @@ class MainViewModel(private val application: Application): ViewModel() {
         }
     }
 
+
     fun createWeatherCardData(
         currentData: CurrentWeatherResponse?,
-        forecastData: ForecastWeatherResponse?
+        forecastData: ForecastWeatherResponse?,
+        dailyForecastData: ForecastWeatherResponse? = null
     ): CardWeatherData? {
         val currentWeatherItem = currentData?.data?.firstOrNull() ?: return null
 
@@ -202,6 +207,17 @@ class MainViewModel(private val application: Application): ViewModel() {
             )
         } ?: emptyList()
 
+        // Processar previsão diária se disponível
+        val dailyWeatherData = dailyForecastData?.data?.map { dailyForecast ->
+            DailyWeatherData(
+                date = dailyForecast.validDate ?: "N/A",
+                maxTemp = dailyForecast.maxTemp?.toInt() ?: currentTemp,
+                minTemp = dailyForecast.minTemp?.toInt() ?: currentTemp,
+                description = dailyForecast.weather?.description,
+                rainChance = dailyForecast.pop?.toDouble()?.div(100)
+            )
+        }
+
         val rainChance = forecastData?.data?.firstOrNull()?.pop?.toDouble()?.div(100)
             ?: (currentWeatherItem.precip?.toDouble()?.coerceAtMost(100.0)?.div(100) ?: 0.0)
 
@@ -221,7 +237,8 @@ class MainViewModel(private val application: Application): ViewModel() {
             visibility = currentWeatherItem.vis?.toDouble(),
             uvIndex = uvIndex,
             airQuality = airQuality,
-            hourlyWeatherData = hourlyWeatherData
+            hourlyWeatherData = hourlyWeatherData,
+            dailyWeatherData = dailyWeatherData
         )
     }
 

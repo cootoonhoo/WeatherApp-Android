@@ -29,7 +29,7 @@ data class CurrentWeatherData(
     @SerialName("ob_time")
     val observationTime: String? = null,
     val pod: String? = null,
-    val precip: Int? = null,
+    val precip: Double? = null,
     val pres: Double? = null,
     val rh: Int? = null,
     val slp: Double? = null,

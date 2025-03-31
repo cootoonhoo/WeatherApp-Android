@@ -27,6 +27,7 @@ import br.com.wheatherApp.components.CurrentLocationWeatherComponent
 import br.com.wheatherApp.components.FavoriteCitiesSection
 import br.com.wheatherApp.components.WeatherCardComponent
 import br.com.wheatherApp.data.model.CardWeatherData
+import br.com.wheatherApp.data.model.DailyWeatherData
 import br.com.wheatherApp.data.model.HourlyWeatherData
 import br.com.wheatherApp.data.model.currentWeather.CurrentWeatherResponse
 import br.com.wheatherApp.data.model.forecastWeather.ForecastWeatherResponse
@@ -38,6 +39,7 @@ fun MainScreen(
     longitude: Double? = null,
     currentWeatherData: CurrentWeatherResponse? = null,
     forecastWeatherData: ForecastWeatherResponse? = null,
+    dailyForecastWeatherData: ForecastWeatherResponse? = null, // Novo parâmetro para previsão diária
     isLoading: Boolean = false,
     error: String? = null,
     onCardClick: (CardWeatherData) -> Unit,
@@ -45,7 +47,8 @@ fun MainScreen(
 ) {
     fun createWeatherCardData(
         currentData: CurrentWeatherResponse?,
-        forecastData: ForecastWeatherResponse?
+        forecastData: ForecastWeatherResponse?,
+        dailyForecastData: ForecastWeatherResponse? = null
     ): CardWeatherData? {
         val currentWeatherItem = currentData?.data?.firstOrNull() ?: return null
 
@@ -62,7 +65,6 @@ fun MainScreen(
             }
         }
 
-        // Caso não consiga obter máxima e mínima, usa a temperatura atual
         if (maxTemp == Int.MIN_VALUE) maxTemp = currentTemp
         if (minTemp == Int.MAX_VALUE) minTemp = currentTemp
 
@@ -84,6 +86,16 @@ fun MainScreen(
             )
         } ?: emptyList()
 
+        val dailyWeatherData = dailyForecastData?.data?.map { dailyForecast ->
+            DailyWeatherData(
+                date = dailyForecast.validDate ?: "N/A",
+                maxTemp = dailyForecast.maxTemp?.toInt() ?: currentTemp,
+                minTemp = dailyForecast.minTemp?.toInt() ?: currentTemp,
+                description = dailyForecast.weather?.description,
+                rainChance = dailyForecast.pop?.toDouble()?.div(100)
+            )
+        }
+
         val rainChance = forecastData?.data?.firstOrNull()?.pop?.toDouble()?.div(100)
             ?: (currentWeatherItem.precip?.toDouble()?.coerceAtMost(100.0)?.div(100) ?: 0.0)
 
@@ -103,7 +115,8 @@ fun MainScreen(
             visibility = currentWeatherItem.vis?.toDouble(),
             uvIndex = uvIndex,
             airQuality = airQuality,
-            hourlyWeatherData = hourlyWeatherData
+            hourlyWeatherData = hourlyWeatherData,
+            dailyWeatherData = dailyWeatherData
         )
     }
 
@@ -131,7 +144,7 @@ fun MainScreen(
                 currentWeatherData = currentWeatherData,
                 forecastWeatherData = forecastWeatherData,
                 createWeatherCardData = { current, forecast ->
-                    viewModel.createWeatherCardData(current, forecast)
+                    createWeatherCardData(current, forecast, dailyForecastWeatherData)
                 },
                 onCardClick = onCardClick
             )

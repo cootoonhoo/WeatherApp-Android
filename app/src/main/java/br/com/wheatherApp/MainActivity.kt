@@ -4,6 +4,7 @@ import MainViewModel
 import SearchBarComponent
 import br.com.wheatherApp.data.api.getCurrentWeather
 import br.com.wheatherApp.data.api.getHourlyForecastWeather
+import br.com.wheatherApp.data.api.getDailyForecastWeather
 import br.com.wheatherApp.data.model.CardWeatherData
 import br.com.wheatherApp.data.model.Location
 import br.com.wheatherApp.data.model.currentWeather.CurrentWeatherResponse
@@ -53,6 +54,7 @@ class MainActivity : ComponentActivity() {
     private val longitude = mutableStateOf<Double?>(null)
     private val currentWeather = mutableStateOf<CurrentWeatherResponse?>(null)
     private val forecastWeather = mutableStateOf<ForecastWeatherResponse?>(null)
+    private val dailyForecastWeather = mutableStateOf<ForecastWeatherResponse?>(null) // Novo estado para previsão diária
     private val isLoading = mutableStateOf(false)
     private val weatherError = mutableStateOf<String?>(null)
 
@@ -70,6 +72,7 @@ class MainActivity : ComponentActivity() {
                     longitude = longitude.value,
                     currentWeatherData = currentWeather.value,
                     forecastWeatherData = forecastWeather.value,
+                    dailyForecastWeatherData = dailyForecastWeather.value, // Passe a previsão diária para a navegação
                     isLoading = isLoading.value,
                     error = weatherError.value
                 )
@@ -130,10 +133,12 @@ class MainActivity : ComponentActivity() {
                 val locationObj = Location(lat, lon)
                 val currentResponse = getCurrentWeather(null, locationObj)
                 val forecastResponse = getHourlyForecastWeather(null, locationObj)
+                val dailyResponse = getDailyForecastWeather(null, locationObj)
 
                 CoroutineScope(Dispatchers.Main).launch {
                     currentWeather.value = currentResponse
                     forecastWeather.value = forecastResponse
+                    dailyForecastWeather.value = dailyResponse
                     isLoading.value = false
                 }
             } catch (e: Exception) {
