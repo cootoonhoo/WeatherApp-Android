@@ -8,6 +8,7 @@ import br.com.wheatherApp.data.api.getHourlyForecastWeather
 import br.com.wheatherApp.data.database.FavoriteCity
 import br.com.wheatherApp.data.database.WeatherDatabase
 import br.com.wheatherApp.data.model.CardWeatherData
+import br.com.wheatherApp.data.model.HourlyWeatherData
 import br.com.wheatherApp.data.model.currentWeather.CurrentWeatherResponse
 import br.com.wheatherApp.data.model.forecastWeather.ForecastWeatherResponse
 import kotlinx.coroutines.FlowPreview
@@ -131,17 +132,17 @@ class MainViewModel(private val application: Application): ViewModel() {
     }
 
     private fun createWeatherCardData(
-        currentData: CurrentWeatherResponse,
-        forecastData: ForecastWeatherResponse
+        currentData: CurrentWeatherResponse?,
+        forecastData: ForecastWeatherResponse?
     ): CardWeatherData? {
-        val currentWeatherItem = currentData.data.firstOrNull() ?: return null
+        val currentWeatherItem = currentData?.data?.firstOrNull() ?: return null
 
         val currentTemp = currentWeatherItem.temp?.toInt() ?: 0
 
         var maxTemp = Int.MIN_VALUE
         var minTemp = Int.MAX_VALUE
 
-        forecastData.data?.forEach { forecast ->
+        forecastData?.data?.forEach { forecast ->
             forecast.temp?.let { temp ->
                 val tempInt = temp.toInt()
                 if (tempInt > maxTemp) maxTemp = tempInt
@@ -149,20 +150,48 @@ class MainViewModel(private val application: Application): ViewModel() {
             }
         }
 
+        // Caso não consiga obter máxima e mínima, usa a temperatura atual
         if (maxTemp == Int.MIN_VALUE) maxTemp = currentTemp
         if (minTemp == Int.MAX_VALUE) minTemp = currentTemp
 
-        val rainChance = forecastData.data?.firstOrNull()?.pop?.toDouble()?.div(100)
+        if (maxTemp < currentTemp) maxTemp = currentTemp
+        if (minTemp > currentTemp) minTemp = currentTemp
+
+        val uvIndex = currentWeatherItem.uv
+        val airQuality = currentWeatherItem.aqi
+
+        val hourlyWeatherData = forecastData?.data?.map { forecast ->
+            HourlyWeatherData(
+                temp = forecast.temp,
+                time = forecast.datetime ?: "N/A",
+                humidity = forecast.rh,
+                windSpeed = forecast.windSpeed,
+                rainChance = forecast.pop?.toDouble(),
+                uvIndex = forecast.uv,
+                airQuality = airQuality
+            )
+        } ?: emptyList()
+
+        val rainChance = forecastData?.data?.firstOrNull()?.pop?.toDouble()?.div(100)
             ?: (currentWeatherItem.precip?.toDouble()?.coerceAtMost(100.0)?.div(100) ?: 0.0)
 
         return CardWeatherData(
-            cityName = currentWeatherItem.cityName ?: "Desconhecido",
+            cityName = currentWeatherItem.cityName ?: "Localização atual",
             countryCode = currentWeatherItem.countryCode ?: "",
             currentTemp = currentTemp,
             maxTemp = maxTemp,
             minTemp = minTemp,
             rainningChance = rainChance,
-            status = currentWeatherItem.weather?.description ?: "Céu limpo"
+            status = currentWeatherItem.weather?.description ?: "Céu limpo",
+            windSpeed = currentWeatherItem.windSpeed,
+            humidity = currentWeatherItem.rh,
+            pressure = currentWeatherItem.pres,
+            windGustSpeed = currentWeatherItem.gust,
+            solarRadiation = currentWeatherItem.solarRadiation,
+            visibility = currentWeatherItem.vis?.toDouble(),
+            uvIndex = uvIndex,
+            airQuality = airQuality,
+            hourlyWeatherData = hourlyWeatherData
         )
     }
 
