@@ -24,12 +24,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-val MOCK_ListOfCities = listOf(
-    City("São Paulo","BR"),
-    City("Rio de Janeiro","BR"),
-    City("Xique Xique", "BR")
-)
-
 class MainViewModel(private val application: Application): ViewModel() {
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
@@ -49,16 +43,18 @@ class MainViewModel(private val application: Application): ViewModel() {
     private val _loadingError = MutableStateFlow<String?>(null)
     val loadingError = _loadingError.asStateFlow()
 
-    private val _listOfCities = MutableStateFlow(MOCK_ListOfCities) // Futuramente vai ser SavedCities
+    // Changed from MOCK_ListOfCities to an empty list that will be populated from database
+    private val _listOfCities = MutableStateFlow<List<City>>(emptyList())
+
     @OptIn(FlowPreview::class)
     val listOfCities = searchText
         .debounce(700L)
         .onEach { _isSearching.update { true } }
-        .combine(_listOfCities){ text, city ->
+        .combine(_listOfCities){ text, cities ->
             if(text.isBlank()) {
-                city
+                cities
             } else {
-                city.filter {
+                cities.filter {
                     it.doesMatchSearchQuery(text)
                 }
             }
@@ -70,12 +66,34 @@ class MainViewModel(private val application: Application): ViewModel() {
 
     init {
         loadFavoriteCities()
+        // Also convert favorite cities to City objects for search
+        updateCitiesListFromFavorites()
     }
 
-    // Adiciona uma nova cidade à lista de cidades
+    // New function to convert FavoriteCity objects to City objects
+    private fun updateCitiesListFromFavorites() {
+        viewModelScope.launch {
+            try {
+                val database = WeatherDatabase.getDatabase(application)
+                val dao = database.favoriteCityDao()
+
+                dao.getAllFavoriteCities().collect { favorites ->
+                    // Convert FavoriteCity objects to City objects for the search list
+                    val cities = favorites.map { favoriteCity ->
+                        City(favoriteCity.cityName, favoriteCity.countryCode)
+                    }
+                    _listOfCities.value = cities
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error converting favorites to cities: ${e.message}")
+            }
+        }
+    }
+
+    // Adds a new city to the list of cities
     fun addCityToList(city: City) {
         val currentList = _listOfCities.value.toMutableList()
-        // Verifica se a cidade já existe na lista para evitar duplicatas
+        // Check if the city already exists in the list to avoid duplicates
         if (!currentList.any { it.cityName == city.cityName && it.countryCode == city.countryCode }) {
             currentList.add(city)
             _listOfCities.value = currentList
@@ -95,6 +113,8 @@ class MainViewModel(private val application: Application): ViewModel() {
                 dao.getAllFavoriteCities().collect { cities ->
                     _favoriteCities.value = cities
                     loadWeatherForFavoriteCities(cities)
+                    // Update the search list when favorites change
+                    updateCitiesListFromFavorites()
                 }
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Error loading favorite cities: ${e.message}")
@@ -222,5 +242,4 @@ class MainViewModel(private val application: Application): ViewModel() {
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
-
 }

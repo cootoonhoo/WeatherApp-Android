@@ -24,10 +24,7 @@ fun LoadingScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .background(
-                color = MaterialTheme.colorScheme.background
-            ),
+            .padding(16.dp),
         contentAlignment = Alignment.Center,
     ) {
         Column(
@@ -45,7 +42,6 @@ fun LoadingScreen() {
                 text = "Carregando dados meteorológicos...",
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
