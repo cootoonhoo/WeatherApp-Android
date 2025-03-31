@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState // Adicionado
+import androidx.compose.foundation.verticalScroll // Adicionado
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -123,12 +125,14 @@ fun MainScreen(
     val favoriteWeatherData by viewModel.favoriteWeatherData.collectAsState()
     val isLoadingFavorites by viewModel.isLoadingFavorites.collectAsState()
     val loadingError by viewModel.loadingError.collectAsState()
+    val scrollState = rememberScrollState() // Adicionado para controlar a rolagem
 
     Scaffold { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .verticalScroll(scrollState) // Adicionado modificador para tornar a tela rolável
         ) {
             SearchBarComponent(
                 viewModel = viewModel,
@@ -157,6 +161,9 @@ fun MainScreen(
                 error = loadingError,
                 onCardClick = onCardClick
             )
+
+            // Adiciona um espaço no final para melhorar a experiência de rolagem
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
