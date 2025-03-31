@@ -33,8 +33,6 @@ fun FavoriteCitiesSection(
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Spacer(modifier = Modifier.height(8.dp))
-
         Text(
             text = "Cidades Favoritas",
             fontSize = 18.sp,
@@ -43,7 +41,7 @@ fun FavoriteCitiesSection(
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         when {
             isLoading -> {
@@ -111,7 +109,7 @@ fun FavoriteCitiesSection(
                     formatWeatherData(weatherData)
                     WeatherCardComponent(
                         weatherData = weatherData,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                         onCardClick = onCardClick
                     )
                 }

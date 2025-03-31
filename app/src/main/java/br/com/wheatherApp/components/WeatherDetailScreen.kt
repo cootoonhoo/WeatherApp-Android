@@ -59,6 +59,12 @@ import br.com.wheatherApp.data.model.CardWeatherData
 import br.com.wheatherApp.ui.viewmodels.FavoriteViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -223,7 +229,7 @@ fun WeatherDetailScreen(
                                 Spacer(modifier = Modifier.width(4.dp))
 
                                 Text(
-                                    text = "Chance de chuva: ${(weatherData.rainningChance * 100).toInt()}%",
+                                    text = "Chance de chuva: ${(weatherData.rainningChance).toInt()}%",
                                     fontSize = 16.sp,
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                 )
@@ -250,8 +256,21 @@ fun WeatherDetailScreen(
                                     .fillMaxWidth()
                                     .padding(8.dp)
                             ) {
+
+                                val inputPattern = "yyyy-MM-dd:HH"
+                                val outputPattern = "HH:mm"
+
+                                val inputFormat = SimpleDateFormat(inputPattern, Locale.getDefault())
+                                inputFormat.timeZone = TimeZone.getTimeZone("UTC")
+
+                                val outputFormat = SimpleDateFormat(outputPattern, Locale.getDefault())
+                                outputFormat.timeZone = TimeZone.getDefault()
+
+                                val date = inputFormat.parse(hourly.time)
+                                val hour = outputFormat.format(date)
+
                                 Text(
-                                    text = "${hourly.time.split(":")[1]}:00",
+                                    text = "$hour",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface,
@@ -332,7 +351,7 @@ fun WeatherDetailScreen(
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = "${(hourly.rainChance ?: 0.0) * 100}%",
+                                        text = "${(hourly.rainChance ?: 0.0)}%",
                                         fontSize = 12.sp,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
