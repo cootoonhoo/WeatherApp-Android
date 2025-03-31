@@ -4,10 +4,10 @@ val ktor_version: String by project
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.serialization") version "1.9.0"
     id("com.google.devtools.ksp")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -78,7 +78,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
     // Room dependencies
-    val room_version = "2.6.1"
+    val room_version = "2.7.0-rc03"
     implementation("androidx.room:room-runtime:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
