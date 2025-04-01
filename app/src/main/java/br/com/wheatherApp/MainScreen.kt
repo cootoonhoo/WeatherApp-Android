@@ -41,7 +41,7 @@ fun MainScreen(
     longitude: Double? = null,
     currentWeatherData: CurrentWeatherResponse? = null,
     forecastWeatherData: ForecastWeatherResponse? = null,
-    dailyForecastWeatherData: ForecastWeatherResponse? = null, // Novo parâmetro para previsão diária
+    dailyForecastWeatherData: ForecastWeatherResponse? = null,
     isLoading: Boolean = false,
     error: String? = null,
     onCardClick: (CardWeatherData) -> Unit,
@@ -163,7 +163,6 @@ fun MainScreen(
                 onCardClick = onCardClick
             )
 
-            // Adiciona um espaço no final para melhorar a experiência de rolagem
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
