@@ -109,6 +109,7 @@ fun MainScreen(
             minTemp = minTemp,
             rainningChance = rainChance,
             status = currentWeatherItem.weather?.description ?: "Céu limpo",
+            statusCode = currentWeatherItem.weather?.code,
             windSpeed = currentWeatherItem.windSpeed,
             humidity = currentWeatherItem.rh,
             pressure = currentWeatherItem.pres,

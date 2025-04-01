@@ -31,6 +31,10 @@ import br.com.wheatherApp.components.CityWeatherLoader
 import br.com.wheatherApp.data.model.HourlyWeatherData
 import kotlinx.coroutines.launch
 
+/** Claude 3.7 Sonnet - Início
+ * Crie um sistema de navegação entre as telas do projeto.
+ */
+
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object WeatherDetail : Screen("weather_detail/{weatherDataJson}")
@@ -120,3 +124,5 @@ fun AppNavigation(
         }
     }
 }
+
+/** Claude 3.7 Sonnet - Fim */

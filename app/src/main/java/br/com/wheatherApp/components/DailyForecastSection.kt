@@ -32,6 +32,10 @@ import androidx.compose.ui.unit.sp
 import br.com.wheatherApp.data.model.DailyWeatherData
 import java.text.SimpleDateFormat
 import java.util.Locale
+/** Claude 3.7 Sonnet - Início
+ * Crie uma segmento que demonstre a previsão de 7 dias. Essa informação pode ser obtida pela API
+ * WeatherAPIService - getDailyForecastWeather()
+ */
 
 @Composable
 fun DailyForecastSection(
@@ -156,3 +160,4 @@ fun DailyForecastRow(forecast: DailyWeatherData) {
         }
     }
 }
+/** Claude 3.7 Sonnet - Fim */

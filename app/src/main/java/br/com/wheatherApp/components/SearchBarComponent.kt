@@ -78,7 +78,6 @@ fun SearchBarComponent(
     }
     isCitySelected = selectedCity != null
 
-    // Determina se o texto no campo de busca se parece com um endereço
     LaunchedEffect(searchText) {
         isAddress = searchText.contains(",") || searchText.contains(" - ")
     }
@@ -106,7 +105,7 @@ fun SearchBarComponent(
                 TooltipBox(
                     positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                     tooltip = {
-                        Text(if (isAddress) "Buscar endereço" else "Ver detalhes do clima")
+                        Text("Buscar endereço")
                     },
                     state = tooltipState
                 ) {
@@ -121,17 +120,13 @@ fun SearchBarComponent(
                                 if (isCitySelected) {
                                     selectedCity?.let { onDetailButtonClick(it) }
                                 } else if (isAddress && !isLoading) {
-                                    // Processar o endereço para obter as informações da cidade
                                     isLoading = true
                                     coroutineScope.launch {
                                         val city = getCityInfo(searchText)
                                         isLoading = false
                                         if (city != null) {
-                                            // Atualizar o texto de busca e notificar a seleção
                                             viewModel.onSearchTextChange(city.cityName)
                                             viewModel.onCitySelected(city)
-
-                                            // Navegar para os detalhes
                                             onDetailButtonClick(city)
                                         }
                                     }
@@ -205,8 +200,6 @@ fun SearchBarComponent(
                                     viewModel.onSearchTextChange(city.cityName)
                                     viewModel.onCitySelected(city)
                                     showSuggestions = false
-
-                                    // Navega diretamente ao clicar na sugestão
                                     onDetailButtonClick(city)
                                 }
                                 .padding(16.dp)

@@ -43,9 +43,9 @@ data class ForecastData(
     val pres: Double? = null,
     val rh: Int? = null,
     val slp: Double? = null,
-    val snow: Int? = null,
+    val snow: Double? = null,
     @SerialName("snow_depth")
-    val snowDepth: Int? = null,
+    val snowDepth: Double? = null,
     @SerialName("sunrise_ts")
     val sunriseTs: Long? = null,
     @SerialName("sunset_ts")
