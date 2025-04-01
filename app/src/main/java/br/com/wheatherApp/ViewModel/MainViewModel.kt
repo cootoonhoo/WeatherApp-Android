@@ -229,6 +229,7 @@ class MainViewModel(private val application: Application): ViewModel() {
             minTemp = minTemp,
             rainningChance = rainChance,
             status = currentWeatherItem.weather?.description ?: "Céu limpo",
+            statusCode = currentWeatherItem.weather?.code ?: 900,
             windSpeed = currentWeatherItem.windSpeed,
             humidity = currentWeatherItem.rh,
             pressure = currentWeatherItem.pres,

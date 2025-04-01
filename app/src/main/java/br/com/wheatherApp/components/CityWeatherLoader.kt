@@ -18,11 +18,6 @@ import br.com.wheatherApp.data.model.CardWeatherData
 import br.com.wheatherApp.data.model.DailyWeatherData
 import br.com.wheatherApp.data.model.HourlyWeatherData
 import kotlinx.coroutines.launch
-
-/**
- * Componente intermediário que carrega os dados da cidade e depois
- * renderiza o WeatherDetailScreen existente
- */
 @Composable
 fun CityWeatherLoader(
     cityName: String,
@@ -82,7 +77,6 @@ fun CityWeatherLoader(
                             )
                         } ?: emptyList()
 
-                        // Processar a previsão diária
                         val dailyWeatherData = dailyForecastResponse?.data?.map { dailyForecast ->
                             DailyWeatherData(
                                 date = dailyForecast.validDate ?: "N/A",

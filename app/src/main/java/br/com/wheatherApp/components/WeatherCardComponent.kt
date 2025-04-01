@@ -45,13 +45,20 @@ fun WeatherCardComponent(
             containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
+        fun checkIfItIsRainning(weatherCode: Int): Boolean
+        {
+            // Status referente ao retorno da API (Abaixo de 600 é pq está chovendo)
+            return when(weatherCode) {
+                in 1..599 -> true
+                else -> false
+            }
+        }
+
         /** Claude 3.7 Sonnet - Início
          * Faça que quando esteja chovendo, o WeaherCardComponent tenha um efeito de chuva
          */
         Box(modifier = Modifier.fillMaxWidth()) {
-            val isRaining = weatherData.status.contains("Rain", ignoreCase = true) ||
-                    weatherData.rainningChance > 0.5
-
+            val isRaining = checkIfItIsRainning(weatherData.statusCode?: 900)
             if (isRaining) {
                 RainEffect(
                     modifier = Modifier.matchParentSize(),
@@ -67,8 +74,8 @@ fun WeatherCardComponent(
                     .padding(16.dp)
             ) {
                 // Cidade + chances de chuva
-                Row (verticalAlignment = Alignment.CenterVertically) {
-                    val rainningChanceColor =  Color(0x65FFFFFF)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val rainningChanceColor = Color(0x65FFFFFF)
                     Text(
                         text = "${weatherData.cityName},${weatherData.countryCode}",
                         fontSize = 28.sp,
@@ -76,8 +83,7 @@ fun WeatherCardComponent(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
 
-                    if(!isRaining)
-                    {
+                    if (!isRaining) {
                         Spacer(modifier = Modifier.width(6.dp))
 
                         Icon(
@@ -144,6 +150,7 @@ fun WeatherCardComponent(
                             when {
                                 weatherData.status.contains("Rain", ignoreCase = true) ||
                                         weatherData.rainningChance > 0.5 -> Color(0xFF6DA8F1)
+
                                 weatherData.currentTemp > 30 -> Color(0xFFFF9C7D)
                                 weatherData.currentTemp < 15 -> Color(0xFF636EAD)
                                 else -> Color(0xFF81C784)

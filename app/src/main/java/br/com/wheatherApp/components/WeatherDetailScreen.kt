@@ -68,6 +68,15 @@ fun WeatherDetailScreen(
     onBackClick: () -> Unit,
     favoriteViewModel: FavoriteViewModel = viewModel()
 ) {
+    fun checkIfItIsRainning(weatherCode: Int): Boolean
+    {
+        // Status referente ao retorno da API (Abaixo de 600 é pq está chovendo)
+        return when(weatherCode) {
+            in 1..599 -> true
+            else -> false
+        }
+    }
+
     // Verificar se a cidade já está nos favoritos
     LaunchedEffect(weatherData) {
         favoriteViewModel.checkIfCityIsFavorite(weatherData.cityName, weatherData.countryCode)
@@ -79,8 +88,7 @@ fun WeatherDetailScreen(
     val scrollState = rememberScrollState()
 
     // Verificar se está chovendo para mostrar o efeito de chuva
-    val isRaining = weatherData.status.contains("Rain", ignoreCase = true) ||
-            weatherData.rainningChance > 0.5
+    val isRaining = checkIfItIsRainning(weatherData.statusCode?:900)
 
     Scaffold(
         snackbarHost = {
